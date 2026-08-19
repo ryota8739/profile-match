@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ユーザー登録</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        #message {
+            margin-top: 20px;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>ユーザー登録</h1>
+
+<form id="registerForm">
+
+    <div class="form-group">
+        <label>名前</label>
+        <input
+            type="text"
+            id="name"
+            required
+        >
+    </div>
+
+    <div class="form-group">
+        <label>メールアドレス</label>
+        <input
+            type="email"
+            id="email"
+            required
+        >
+    </div>
+
+    <div class="form-group">
+        <label>パスワード</label>
+        <input
+            type="password"
+            id="password"
+            minlength="8"
+            required
+        >
+    </div>
+
+    <div class="form-group">
+        <label>年齢</label>
+        <input
+            type="number"
+            id="age"
+            min="18"
+            max="100"
+            required
+        >
+    </div>
+
+    <div class="form-group">
+        <label>性別</label>
+        <select id="gender" required>
+            <option value="">選択してください</option>
+            <option value="male">男性</option>
+            <option value="female">女性</option>
+            <option value="other">その他</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>身長（cm）</label>
+        <input
+            type="number"
+            id="height"
+            min="100"
+            max="250"
+            required
+        >
+    </div>
+
+    <div class="form-group">
+        <label>職種</label>
+        <input
+            type="text"
+            id="job"
+            required
+        >
+    </div>
+
+    <div class="form-group">
+        <label>年収（万円）</label>
+        <input
+            type="number"
+            id="income"
+            min="0"
+            required
+        >
+    </div>
+
+    <div class="form-group">
+        <label>住んでいる地域</label>
+        <input
+            type="text"
+            id="region"
+            required
+        >
+    </div>
+
+    <div class="form-group">
+        <label>趣味</label>
+        <input
+            type="text"
+            id="hobbies"
+            placeholder="映画,旅行,ゲーム"
+            required
+        >
+    </div>
+
+    <button type="submit">
+        登録する
+    </button>
+
+</form>
+
+<div id="message"></div>
+
+<script>
+
+const API_URL = "http://3.112.113.250:8000";
+
+document
+    .getElementById("registerForm")
+    .addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        const hobbiesText =
+            document.getElementById("hobbies").value;
+
+        const hobbies =
+            hobbiesText
+                .split(",")
+                .map(hobby => hobby.trim())
+                .filter(hobby => hobby.length > 0);
+
+        const data = {
+
+            name:
+                document.getElementById("name").value,
+
+            email:
+                document.getElementById("email").value,
+
+            password:
+                document.getElementById("password").value,
+
+            age:
+                Number(
+                    document.getElementById("age").value
+                ),
+
+            gender:
+                document.getElementById("gender").value,
+
+            height:
+                Number(
+                    document.getElementById("height").value
+                ),
+
+            job:
+                document.getElementById("job").value,
+
+            income:
+                Number(
+                    document.getElementById("income").value
+                ),
+
+            region:
+                document.getElementById("region").value,
+
+            hobbies:
+                hobbies
+        };
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_URL}/api/register`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(data)
+                    }
+                );
+
+            const result =
+                await response.json();
+
+            const message =
+                document.getElementById("message");
+
+            if (response.ok) {
+
+                message.innerHTML =
+                    `<p>登録成功しました。</p>
+                     <p>User ID: ${result.user_id}</p>`;
+
+                document
+                    .getElementById("registerForm")
+                    .reset();
+
+            } else {
+
+                message.innerHTML =
+                    `<p>登録に失敗しました。</p>
+                     <p>${JSON.stringify(result)}</p>`;
+            }
+
+        } catch (error) {
+
+            document
+                .getElementById("message")
+                .innerHTML =
+                    `<p>サーバーに接続できませんでした。</p>
+                     <p>${error}</p>`;
+        }
+
+    });
+
+</script>
+
+</body>
+</html>

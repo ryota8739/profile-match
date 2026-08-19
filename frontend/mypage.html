@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>マイページ - Profile Match</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .profile {
+            margin-top: 30px;
+        }
+
+        .item {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .label {
+            width: 120px;
+            font-weight: bold;
+        }
+
+        .value {
+            flex: 1;
+        }
+
+        .hobbies {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .hobby {
+            background: #eee;
+            padding: 5px 10px;
+            border-radius: 15px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 30px;
+            padding: 12px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        .error {
+            text-align: center;
+            color: red;
+            margin-top: 30px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h1>マイページ</h1>
+
+    <div
+        id="profile"
+        class="profile"
+    ></div>
+
+    <div
+        id="error"
+        class="error"
+    ></div>
+
+    <button
+        id="logoutButton"
+    >
+        ログアウト
+    </button>
+
+</div>
+
+
+<script>
+
+const API_BASE_URL =
+    "http://3.112.113.250:8000";
+
+
+async function loadProfile() {
+
+    const token =
+        localStorage.getItem(
+            "access_token"
+        );
+
+
+    // JWTがなければログインページへ
+    if (!token) {
+
+        window.location.href =
+            "login.html";
+
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/me`,
+                {
+                    method: "GET",
+
+                    headers: {
+                        "Authorization":
+                            `Bearer ${token}`
+                    }
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            localStorage.removeItem(
+                "access_token"
+            );
+
+            window.location.href =
+                "login.html";
+
+            return;
+        }
+
+
+        displayProfile(data);
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        document
+            .getElementById("error")
+            .textContent =
+                "サーバーとの通信に失敗しました";
+
+    }
+
+}
+
+
+function displayProfile(user) {
+
+    const profile =
+        document.getElementById(
+            "profile"
+        );
+
+
+    profile.innerHTML = `
+
+        <div class="item">
+            <div class="label">
+                名前
+            </div>
+
+            <div class="value">
+                ${user.name}
+            </div>
+        </div>
+
+
+        <div class="item">
+            <div class="label">
+                年齢
+            </div>
+
+            <div class="value">
+                ${user.age}歳
+            </div>
+        </div>
+
+
+        <div class="item">
+            <div class="label">
+                性別
+            </div>
+
+            <div class="value">
+                ${user.gender}
+            </div>
+        </div>
+
+
+        <div class="item">
+            <div class="label">
+                身長
+            </div>
+
+            <div class="value">
+                ${user.height} cm
+            </div>
+        </div>
+
+
+        <div class="item">
+            <div class="label">
+                職種
+            </div>
+
+            <div class="value">
+                ${user.job}
+            </div>
+        </div>
+
+
+        <div class="item">
+            <div class="label">
+                年収
+            </div>
+
+            <div class="value">
+                ${user.income}万円
+            </div>
+        </div>
+
+
+        <div class="item">
+            <div class="label">
+                地域
+            </div>
+
+            <div class="value">
+                ${user.region}
+            </div>
+        </div>
+
+
+        <div class="item">
+
+            <div class="label">
+                趣味
+            </div>
+
+            <div class="value hobbies">
+
+                ${user.hobbies
+                    .map(
+                        hobby =>
+                            `<span class="hobby">${hobby}</span>`
+                    )
+                    .join("")
+                }
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+document
+    .getElementById("logoutButton")
+    .addEventListener(
+        "click",
+        function() {
+
+            localStorage.removeItem(
+                "access_token"
+            );
+
+            window.location.href =
+                "login.html";
+
+        }
+    );
+
+
+loadProfile();
+
+</script>
+
+</body>
+</html>
