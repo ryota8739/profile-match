@@ -10,6 +10,11 @@ USERS_TABLE = os.getenv(
     "Users"
 )
 
+S3_BUCKET = os.getenv(
+    "S3_BUCKET",
+    "profile-match-app-20260819"
+    )
+
 JWT_SECRET_KEY = os.getenv(
     "JWT_SECRET_KEY",
     "change-this-secret-key"
