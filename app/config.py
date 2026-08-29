@@ -20,4 +20,9 @@ JWT_SECRET_KEY = os.getenv(
     "change-this-secret-key"
 )
 
+MESSAGES_TABLE = os.getenv(
+    "MESSAGES_TABLE",
+    "Messages"
+)
+
 JWT_ALGORITHM = "HS256"

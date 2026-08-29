@@ -2,86 +2,152 @@
 <html lang="ja">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>ログイン - Profile Match</title>
 
+
     <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
         body {
-            font-family: Arial, sans-serif;
+
+            font-family:
+                Arial,
+                sans-serif;
+
             background: #f5f5f5;
+
             margin: 0;
+
             padding: 40px 20px;
         }
 
+
         .container {
+
             max-width: 400px;
+
             margin: 0 auto;
+
             background: white;
+
             padding: 30px;
+
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+            box-shadow:
+                0 2px 10px
+                rgba(0, 0, 0, 0.1);
         }
 
+
         h1 {
+
             text-align: center;
+
             margin-bottom: 30px;
         }
 
+
         label {
+
             display: block;
+
             margin-top: 15px;
+
             margin-bottom: 5px;
+
             font-weight: bold;
         }
 
+
         input {
+
             width: 100%;
-            box-sizing: border-box;
+
             padding: 10px;
+
             border: 1px solid #ccc;
+
             border-radius: 5px;
         }
 
+
         button {
+
             width: 100%;
+
             margin-top: 25px;
+
             padding: 12px;
+
             background: #333;
+
             color: white;
+
             border: none;
+
             border-radius: 5px;
+
             cursor: pointer;
         }
 
+
         button:hover {
+
             background: #555;
         }
 
+
         .message {
+
             margin-top: 20px;
+
             text-align: center;
         }
 
+
         .register-link {
+
             margin-top: 20px;
+
             text-align: center;
         }
+
     </style>
+
 </head>
+
 
 <body>
 
+
 <div class="container">
 
-    <h1>ログイン</h1>
+
+    <h1>
+        ProfileMatch
+    </h1>
+
 
     <form id="loginForm">
+
 
         <label for="email">
             メールアドレス
         </label>
+
 
         <input
             type="email"
@@ -89,9 +155,11 @@
             required
         >
 
+
         <label for="password">
             パスワード
         </label>
+
 
         <input
             type="password"
@@ -99,16 +167,20 @@
             required
         >
 
+
         <button type="submit">
             ログイン
         </button>
 
+
     </form>
+
 
     <div
         id="message"
         class="message"
     ></div>
+
 
     <div class="register-link">
 
@@ -118,98 +190,169 @@
 
     </div>
 
+
 </div>
 
 
 <script>
 
-const API_BASE_URL =
-    "http://3.112.113.250:8000";
 
+// ==================================================
+// API
+// ==================================================
+
+const API_BASE_URL =
+    "http://13.115.204.216:8000";
+
+
+// ==================================================
+// ログイン済みならマイページへ
+// ==================================================
+
+const existingToken =
+    localStorage.getItem(
+        "access_token"
+    );
+
+
+if (existingToken) {
+
+    window.location.href =
+        "mypage.html";
+
+}
+
+
+// ==================================================
+// ログイン
+// ==================================================
 
 document
     .getElementById("loginForm")
-    .addEventListener("submit", async function(event) {
+    .addEventListener(
+        "submit",
+        async function(event) {
 
-        event.preventDefault();
-
-        const email =
-            document.getElementById("email").value;
-
-        const password =
-            document.getElementById("password").value;
-
-        const message =
-            document.getElementById("message");
+            event.preventDefault();
 
 
-        try {
+            const email =
+                document.getElementById(
+                    "email"
+                ).value;
 
-            const response =
-                await fetch(
-                    `${API_BASE_URL}/api/login`,
-                    {
-                        method: "POST",
 
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
+            const password =
+                document.getElementById(
+                    "password"
+                ).value;
 
-                        body: JSON.stringify({
-                            email: email,
-                            password: password
-                        })
-                    }
+
+            const message =
+                document.getElementById(
+                    "message"
                 );
 
 
-            const data =
-                await response.json();
+            message.textContent =
+                "ログインしています...";
 
 
-            if (!response.ok) {
+            try {
+
+
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/api/login`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+
+                                email:
+                                    email,
+
+                                password:
+                                    password
+
+                            })
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                // ----------------------------------
+                // ログイン失敗
+                // ----------------------------------
+
+                if (!response.ok) {
+
+                    message.textContent =
+                        data.detail ||
+                        "ログインに失敗しました";
+
+                    return;
+
+                }
+
+
+                // ----------------------------------
+                // JWT保存
+                // ----------------------------------
+
+                localStorage.setItem(
+                    "access_token",
+                    data.access_token
+                );
+
 
                 message.textContent =
-                    data.detail ||
-                    "ログインに失敗しました";
+                    "ログイン成功";
 
-                return;
+
+                // ----------------------------------
+                // マイページへ
+                // ----------------------------------
+
+                setTimeout(
+                    function() {
+
+                        window.location.href =
+                            "mypage.html";
+
+                    },
+                    500
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Login error:",
+                    error
+                );
+
+
+                message.textContent =
+                    "サーバーとの通信に失敗しました";
+
             }
 
-
-            // JWTを保存
-            localStorage.setItem(
-                "access_token",
-                data.access_token
-            );
-
-
-            message.textContent =
-                "ログイン成功";
-
-
-            // マイページへ移動
-            setTimeout(function() {
-
-                window.location.href =
-                    "mypage.html";
-
-            }, 500);
-
-
-        } catch (error) {
-
-            console.error(error);
-
-            message.textContent =
-                "サーバーとの通信に失敗しました";
-
         }
-
-    });
+    );
 
 </script>
 
+
 </body>
+
 </html>
+

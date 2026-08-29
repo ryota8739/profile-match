@@ -1,5 +1,5 @@
 import io
-
+from typing import Optional
 import boto3
 
 from fastapi import (
@@ -221,4 +221,217 @@ async def upload_profile_image(
         "message": "Profile image uploaded successfully",
         "user_id": user_id,
         "profile_image": s3_key
+    }
+
+# --------------------------------------------------
+# Get profile image URL
+# --------------------------------------------------
+
+@router.get("/image-url/{user_id}")
+def get_profile_image_url(
+    user_id: str
+):
+
+    # --------------------------------------------------
+    # Get user information from DynamoDB
+    # --------------------------------------------------
+
+    response = users_table.get_item(
+        Key={
+            "user_id": user_id
+        }
+    )
+
+    user = response.get("Item")
+
+    if not user:
+
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+
+    # --------------------------------------------------
+    # Get profile image S3 key
+    # --------------------------------------------------
+
+    profile_image = user.get(
+        "profile_image"
+    )
+
+    if not profile_image:
+
+        return {
+            "url": None
+        }
+
+
+    # --------------------------------------------------
+    # Create thumbnail key
+    # --------------------------------------------------
+
+    thumbnail_key = profile_image.replace(
+        "original.jpg",
+        "thumbnail.jpg"
+    )
+
+
+    # --------------------------------------------------
+    # Generate Presigned URL
+    # --------------------------------------------------
+
+    try:
+
+        url = s3.generate_presigned_url(
+            ClientMethod="get_object",
+            Params={
+                "Bucket": S3_BUCKET,
+                "Key": thumbnail_key
+            },
+            ExpiresIn=3600
+        )
+
+    except Exception as e:
+
+        print(
+            f"Presigned URL error: {e}"
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to generate image URL"
+        )
+
+
+    # --------------------------------------------------
+    # Response
+    # --------------------------------------------------
+
+    return {
+        "url": url
+    }
+
+    # --------------------------------------------------
+# Update profile
+# --------------------------------------------------
+
+from pydantic import BaseModel
+
+class ProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    height: Optional[int] = None
+    gender: Optional[str] = None
+    age: Optional[int] = None
+    job: Optional[str] = None
+    income: Optional[int] = None
+    region: Optional[str] = None
+    hobbies: Optional[str] = None
+
+
+@router.put("")
+async def update_profile(
+    profile: ProfileUpdate,
+    user_id: str = Depends(get_current_user_id)
+):
+
+    # --------------------------------------------------
+    # 更新データ取得
+    # --------------------------------------------------
+
+    update_data = profile.model_dump(
+        exclude_none=True
+    )
+
+
+    if not update_data:
+
+        raise HTTPException(
+            status_code=400,
+            detail="更新する項目がありません"
+        )
+
+
+    # --------------------------------------------------
+    # DynamoDB UpdateExpression作成
+    # --------------------------------------------------
+
+    update_parts = []
+
+    expression_attribute_names = {}
+
+    expression_attribute_values = {}
+
+
+    for key, value in update_data.items():
+
+        name_key = f"#{key}"
+
+        value_key = f":{key}"
+
+
+        update_parts.append(
+            f"{name_key} = {value_key}"
+        )
+
+
+        expression_attribute_names[
+            name_key
+        ] = key
+
+
+        expression_attribute_values[
+            value_key
+        ] = value
+
+
+    update_expression = (
+        "SET " +
+        ", ".join(update_parts)
+    )
+
+
+    # --------------------------------------------------
+    # DynamoDB更新
+    # --------------------------------------------------
+
+    try:
+
+        users_table.update_item(
+
+            Key={
+                "user_id": user_id
+            },
+
+            UpdateExpression=
+                update_expression,
+
+            ExpressionAttributeNames=
+                expression_attribute_names,
+
+            ExpressionAttributeValues=
+                expression_attribute_values
+
+        )
+
+    except Exception as e:
+
+        print(
+            f"DynamoDB profile update error: {e}"
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to update profile"
+        )
+
+
+    # --------------------------------------------------
+    # Response
+    # --------------------------------------------------
+
+    return {
+        "message": "Profile updated successfully",
+        "user_id": user_id,
+        "updated": update_data
     }

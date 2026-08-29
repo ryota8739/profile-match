@@ -11,58 +11,169 @@
 
     <title>ProfileMatch - プロフィール</title>
 
-
     <style>
 
-        body {
-            font-family: sans-serif;
-            background: #f5f6f8;
-            margin: 0;
-        }
+    body {
+        font-family: sans-serif;
+        background: #f5f6f8;
+        margin: 0;
+    }
 
 
-        header {
-            background: white;
-            padding: 15px 30px;
-            border-bottom: 1px solid #ddd;
-        }
+    header {
+        background: white;
+        padding: 15px 30px;
+        border-bottom: 1px solid #ddd;
+    }
 
+
+    main {
+        max-width: 700px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+
+
+    .profile {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow:
+            0 2px 8px rgba(0,0,0,0.08);
+    }
+
+
+    .profile h2 {
+        margin-top: 0;
+    }
+
+
+    .info {
+        line-height: 2;
+    }
+
+
+    /* ==============================================
+       ボタン
+       ============================================== */
+
+    .button-area {
+        display: flex;
+        gap: 10px;
+        margin-top: 25px;
+    }
+
+
+    .button-area button {
+        flex: 1;
+        padding: 12px 20px;
+
+        border: none;
+        border-radius: 6px;
+
+        cursor: pointer;
+
+        font-size: 14px;
+    }
+
+
+    .back-button {
+        background: #eee;
+        color: #333;
+    }
+
+
+    .back-button:hover {
+        background: #ddd;
+    }
+
+
+    .bookmark-button {
+        background: #4a90e2;
+        color: white;
+    }
+
+
+    .bookmark-button:hover {
+        background: #357abd;
+    }
+
+
+    .bookmark-button:disabled {
+        background: #aaa;
+        cursor: default;
+    }
+
+
+    /* ==============================================
+       プロフィール画像
+       ============================================== */
+
+    .profile-image-container {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+
+    .profile-image {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 1px solid #ddd;
+    }
+
+
+    .no-image {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 25px;
+        border-radius: 50%;
+        background: #eee;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        color: #777;
+    }
+
+
+    /* ==============================================
+       メッセージ
+       ============================================== */
+
+    #bookmarkMessage {
+        margin-top: 15px;
+        text-align: center;
+        font-size: 14px;
+    }
+
+
+    /* ==============================================
+       スマートフォン
+       ============================================== */
+
+    @media (max-width: 600px) {
 
         main {
-            max-width: 700px;
-            margin: 30px auto;
-            padding: 20px;
+            margin: 20px auto;
+            padding: 15px;
         }
 
 
         .profile {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow:
-                0 2px 8px rgba(0,0,0,0.08);
+            padding: 20px;
         }
 
 
-        .profile h2 {
-            margin-top: 0;
+        .button-area {
+            flex-direction: column;
         }
 
+    }
 
-        .info {
-            line-height: 2;
-        }
-
-
-        .back-button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-    </style>
+</style>
 
 </head>
 
@@ -89,11 +200,10 @@
 </main>
 
 
+<script src="./js/common.js"></script>
+
+
 <script>
-
-
-const API_BASE_URL =
-    "http://3.112.113.250:8000";
 
 
 // ==================================================
@@ -101,7 +211,6 @@ const API_BASE_URL =
 // ==================================================
 
 async function loadProfile() {
-
 
     const params =
         new URLSearchParams(
@@ -113,6 +222,10 @@ async function loadProfile() {
         params.get("id");
 
 
+    // ==================================================
+    // ユーザーID確認
+    // ==================================================
+
     if (!userId) {
 
         document.getElementById("profile")
@@ -123,12 +236,42 @@ async function loadProfile() {
             `;
 
         return;
+    }
 
+
+    // ==================================================
+    // 自分自身のプロフィールの場合
+    // ==================================================
+
+    if (userId === currentUserId) {
+
+        document.getElementById("profile")
+            .innerHTML = `
+                <p>
+                    自分のプロフィールです。
+                </p>
+
+                <div class="button-area">
+
+                    <button
+                        class="back-button"
+                        onclick="history.back()"
+                    >
+                        ← 戻る
+                    </button>
+
+                </div>
+            `;
+
+        return;
     }
 
 
     try {
 
+        // ==================================================
+        // プロフィール情報取得
+        // ==================================================
 
         const response =
             await fetch(
@@ -149,12 +292,77 @@ async function loadProfile() {
             await response.json();
 
 
+        // ==================================================
+        // プロフィール画像取得
+        // ==================================================
+
+        let imageUrl = null;
+
+
+        try {
+
+            const imageResponse =
+                await fetch(
+                    `${API_BASE_URL}/api/profile/image-url/${encodeURIComponent(userId)}`
+                );
+
+
+            if (imageResponse.ok) {
+
+                const imageData =
+                    await imageResponse.json();
+
+
+                imageUrl =
+                    imageData.url;
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Profile image error:",
+                error
+            );
+
+        }
+
+
+        // ==================================================
+        // 趣味
+        // ==================================================
+
         const hobbies =
             (user.hobbies || []).join("、");
 
 
+        // ==================================================
+        // プロフィール表示
+        // ==================================================
+
         document.getElementById("profile")
             .innerHTML = `
+
+                ${
+                    imageUrl
+                        ? `
+                            <div class="profile-image-container">
+
+                                <img
+                                    src="${escapeHtml(imageUrl)}"
+                                    alt="プロフィール画像"
+                                    class="profile-image"
+                                >
+
+                            </div>
+                          `
+                        : `
+                            <div class="no-image">
+                                プロフィール画像なし
+                            </div>
+                          `
+                }
+
 
                 <h2>
                     ${escapeHtml(user.name)}
@@ -207,18 +415,39 @@ async function loadProfile() {
                 </div>
 
 
-                <button
-                    class="back-button"
-                    onclick="history.back()"
-                >
-                    ← 検索結果に戻る
-                </button>
+                <!-- ======================================
+                     ボタン
+                     ====================================== -->
+
+                <div class="button-area">
+
+                    <button
+                        class="back-button"
+                        onclick="history.back()"
+                    >
+                        ← 検索結果に戻る
+                    </button>
+
+
+                    <button
+                        id="bookmarkButton"
+                        class="bookmark-button"
+                        onclick="bookmarkUser('${escapeHtml(user.user_id)}')"
+                    >
+                        ♡ ブックマーク
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="bookmarkMessage"
+                ></div>
 
             `;
 
 
     } catch (error) {
-
 
         console.error(
             "Profile error:",
@@ -231,7 +460,203 @@ async function loadProfile() {
                 <p>
                     プロフィールの取得に失敗しました。
                 </p>
+
+                <div class="button-area">
+
+                    <button
+                        class="back-button"
+                        onclick="history.back()"
+                    >
+                        ← 戻る
+                    </button>
+
+                </div>
             `;
+
+    }
+
+}
+
+
+// ==================================================
+// ブックマーク
+// ==================================================
+
+async function bookmarkUser(
+    targetUserId
+) {
+
+    const button =
+        document.getElementById(
+            "bookmarkButton"
+        );
+
+
+    const message =
+        document.getElementById(
+            "bookmarkMessage"
+        );
+
+
+    if (!targetUserId) {
+
+        alert(
+            "ユーザーIDを取得できませんでした。"
+        );
+
+        return;
+    }
+
+
+    // ==================================================
+    // 自分自身へのブックマーク防止
+    // ==================================================
+
+    if (
+        targetUserId === currentUserId
+    ) {
+
+        alert(
+            "自分自身はブックマークできません。"
+        );
+
+        return;
+    }
+
+
+    button.disabled = true;
+
+
+    try {
+
+        const params =
+            new URLSearchParams();
+
+
+        params.append(
+            "user_id",
+            currentUserId
+        );
+
+
+        params.append(
+            "target_user_id",
+            targetUserId
+        );
+
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/bookmarks?${params.toString()}`,
+                {
+                    method: "POST"
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            "Bookmark response:",
+            data
+        );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+
+        }
+
+
+        // ==================================================
+        // マッチ成立
+        // ==================================================
+
+        if (data.matched) {
+
+            message.textContent =
+                "🎉 マッチングしました！";
+
+
+            button.textContent =
+                "🎉 マッチング済み";
+
+
+            alert(
+                "🎉 マッチングしました！"
+            );
+
+        }
+
+
+        // ==================================================
+        // すでに登録済み
+        // ==================================================
+
+        else if (
+            data.message ===
+            "Already bookmarked"
+        ) {
+
+            message.textContent =
+                "すでにブックマークしています。";
+
+
+            button.textContent =
+                "♥ ブックマーク済み";
+
+
+            alert(
+                "すでにブックマークしています。"
+            );
+
+        }
+
+
+        // ==================================================
+        // 通常のブックマーク
+        // ==================================================
+
+        else {
+
+            message.textContent =
+                "♡ ブックマークしました！";
+
+
+            button.textContent =
+                "♥ ブックマーク済み";
+
+
+            alert(
+                "♡ ブックマークしました！"
+            );
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Bookmark error:",
+            error
+        );
+
+
+        message.textContent =
+            "ブックマークに失敗しました。";
+
+
+        alert(
+            "ブックマークに失敗しました。"
+        );
+
+
+        button.disabled = false;
 
     }
 
@@ -242,18 +667,26 @@ async function loadProfile() {
 // XSS対策
 // ==================================================
 
-function escapeHtml(value) {
+function escapeHtml(
+    value
+) {
 
     const div =
         document.createElement("div");
 
+
     div.textContent =
         value ?? "";
+
 
     return div.innerHTML;
 
 }
 
+
+// ==================================================
+// 実行
+// ==================================================
 
 loadProfile();
 

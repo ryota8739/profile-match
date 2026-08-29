@@ -6,6 +6,7 @@ from app.routers import users
 from app.routers import bookmarks
 from app.routers import matches
 from app.routers import profile
+from app.routers import messages
 
 app = FastAPI(
     title="Profile Match API",
@@ -59,6 +60,11 @@ app.include_router(
 
 app.include_router(
     profile.router,
+    prefix="/api"
+)
+
+app.include_router(
+    messages.router,
     prefix="/api"
 )
 

@@ -169,7 +169,7 @@
 
 <script>
 
-const API_URL = "http://3.112.113.250:8000";
+const API_URL = "http://13.115.204.216:8000";
 
 document
     .getElementById("registerForm")
@@ -258,6 +258,10 @@ document
                 document
                     .getElementById("registerForm")
                     .reset();
+
+                setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 2000);
 
             } else {
 

@@ -1,4 +1,10 @@
 // ==================================================
+// Profile Match
+// search.js
+// ==================================================
+
+
+// ==================================================
 // 検索
 // ==================================================
 
@@ -19,10 +25,51 @@ async function searchUsers() {
     // ----------------------------------------------
 
     resultsElement.innerHTML = "";
-
     resultCountElement.innerHTML = "";
-
     messageElement.innerHTML = "";
+
+
+    // ----------------------------------------------
+    // ログイン確認
+    // ----------------------------------------------
+
+    const token =
+        localStorage.getItem("access_token");
+
+
+    if (!token) {
+
+        alert("ログインしてください");
+
+        window.location.href =
+            "login.html";
+
+        return;
+    }
+
+
+    // ----------------------------------------------
+    // 現在のユーザーID
+    // ----------------------------------------------
+
+    const myUserId =
+        currentUserId;
+
+
+    if (!myUserId) {
+
+        alert(
+            "ログイン情報からユーザーIDを取得できませんでした。"
+        );
+
+        return;
+    }
+
+
+    console.log(
+        "Current User ID:",
+        myUserId
+    );
 
 
     // ----------------------------------------------
@@ -133,10 +180,11 @@ async function searchUsers() {
     // Loading
     // ----------------------------------------------
 
-    messageElement.innerHTML =
-        `<div class="message loading">
+    messageElement.innerHTML = `
+        <div class="message loading">
             検索しています...
-        </div>`;
+        </div>
+    `;
 
 
     try {
@@ -151,12 +199,29 @@ async function searchUsers() {
             );
 
 
+        console.log(
+            "Search API status:",
+            response.status
+        );
+
+
+        // ------------------------------------------
+        // APIエラー
+        // ------------------------------------------
+
         if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            console.error(
+                "Search API error:",
+                errorText
+            );
 
             throw new Error(
                 `HTTP ${response.status}`
             );
-
         }
 
 
@@ -164,7 +229,36 @@ async function searchUsers() {
             await response.json();
 
 
+        console.log(
+            "Search result:",
+            data
+        );
+
+
         messageElement.innerHTML = "";
+
+
+        // ------------------------------------------
+        // 自分自身を除外
+        // ------------------------------------------
+
+        const users =
+            (data.users || []).filter(
+                function(user) {
+
+                    return (
+                        String(user.user_id) !==
+                        String(myUserId)
+                    );
+
+                }
+            );
+
+
+        console.log(
+            "Users after excluding myself:",
+            users
+        );
 
 
         // ------------------------------------------
@@ -172,14 +266,14 @@ async function searchUsers() {
         // ------------------------------------------
 
         resultCountElement.textContent =
-            `検索結果：${data.count}人`;
+            `検索結果：${users.length}人`;
 
 
         // ------------------------------------------
         // 0件
         // ------------------------------------------
 
-        if (data.count === 0) {
+        if (users.length === 0) {
 
             resultsElement.innerHTML = `
                 <div class="message">
@@ -196,91 +290,111 @@ async function searchUsers() {
         // 結果表示
         // ------------------------------------------
 
-        data.users.forEach(user => {
+        users.forEach(
+            function(user) {
 
-            const card =
-                document.createElement("div");
-
-
-            card.className =
-                "user-card";
+                const card =
+                    document.createElement("div");
 
 
-            const hobbies =
-                (user.hobbies || []).join("、");
+                card.className =
+                    "user-card";
 
 
-            card.innerHTML = `
-
-                <h3>
-                    ${escapeHtml(user.name)}
-                </h3>
+                const hobbies =
+                    (user.hobbies || []).join("、");
 
 
-                <div class="user-info">
+                card.innerHTML = `
 
-                    <div>
-                        年齢：
-                        ${user.age}歳
+                    <h3>
+                        ${escapeHtml(
+                            user.name
+                        )}
+                    </h3>
+
+
+                    <div class="user-info">
+
+                        <div>
+                            年齢：
+                            ${user.age}歳
+                        </div>
+
+
+                        <div>
+                            身長：
+                            ${user.height}cm
+                        </div>
+
+
+                        <div>
+                            職種：
+                            ${escapeHtml(
+                                user.job || ""
+                            )}
+                        </div>
+
+
+                        <div>
+                            年収：
+                            ${user.income}万円
+                        </div>
+
+
+                        <div>
+                            地域：
+                            ${escapeHtml(
+                                user.region || ""
+                            )}
+                        </div>
+
+
+                        <div>
+                            趣味：
+                            ${escapeHtml(
+                                hobbies
+                            )}
+                        </div>
+
                     </div>
 
 
-                    <div>
-                        身長：
-                        ${user.height}cm
-                    </div>
+                    <button
+                        class="profile-button"
+                        onclick="
+                            viewProfile(
+                                '${escapeHtml(
+                                    user.user_id
+                                )}'
+                            )
+                        "
+                    >
+                        プロフィールを見る
+                    </button>
 
 
-                    <div>
-                        職種：
-                        ${escapeHtml(user.job || "")}
-                    </div>
+                    <button
+                        onclick="
+                            bookmarkUser(
+                                '${escapeHtml(
+                                    user.user_id
+                                )}'
+                            )
+                        "
+                    >
+                        ♡ ブックマーク
+                    </button>
+
+                `;
 
 
-                    <div>
-                        年収：
-                        ${user.income}万円
-                    </div>
+                resultsElement.appendChild(
+                    card
+                );
 
-
-                    <div>
-                        地域：
-                        ${escapeHtml(user.region || "")}
-                    </div>
-
-
-                    <div>
-                        趣味：
-                        ${escapeHtml(hobbies)}
-                    </div>
-
-                </div>
-
-
-                <button
-                    class="profile-button"
-                    onclick="
-                        viewProfile('${user.user_id}')
-                    "
-                >
-                    プロフィールを見る
-                </button>
-
-
-                <button
-                    onclick="
-                        bookmarkUser('${user.user_id}')
-                    "
-                >
-                    ♡ ブックマーク
-                </button>
-
-            `;
-
-
-            resultsElement.appendChild(card);
-
-        });
+            }
+        );
 
 
     } catch (error) {
@@ -293,7 +407,7 @@ async function searchUsers() {
 
         messageElement.innerHTML = `
             <div class="message error">
-                検索に失敗しました。
+                検索に失敗しました。<br>
                 APIサーバーとの通信を確認してください。
             </div>
         `;
@@ -310,6 +424,23 @@ async function searchUsers() {
 async function bookmarkUser(
     targetUserId
 ) {
+
+    // ----------------------------------------------
+    // 自分自身へのブックマーク防止
+    // ----------------------------------------------
+
+    if (
+        String(targetUserId) ===
+        String(currentUserId)
+    ) {
+
+        alert(
+            "自分自身はブックマークできません。"
+        );
+
+        return;
+    }
+
 
     try {
 
@@ -338,22 +469,31 @@ async function bookmarkUser(
             );
 
 
+        console.log(
+            "Bookmark API status:",
+            response.status
+        );
+
+
         if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            console.error(
+                "Bookmark API error:",
+                errorText
+            );
 
             throw new Error(
                 `HTTP ${response.status}`
             );
-
         }
 
 
         const data =
             await response.json();
 
-
-        // ------------------------------------------
-        // Match成立
-        // ------------------------------------------
 
         if (data.matched) {
 
@@ -362,10 +502,6 @@ async function bookmarkUser(
             );
 
         }
-
-        // ------------------------------------------
-        // すでに登録済み
-        // ------------------------------------------
 
         else if (
             data.message ===
@@ -377,10 +513,6 @@ async function bookmarkUser(
             );
 
         }
-
-        // ------------------------------------------
-        // 通常
-        // ------------------------------------------
 
         else {
 
@@ -439,4 +571,5 @@ function escapeHtml(
 
 
     return div.innerHTML;
+
 }

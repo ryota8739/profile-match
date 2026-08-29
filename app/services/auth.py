@@ -3,6 +3,9 @@ from datetime import datetime, timedelta, timezone
 
 from jose import jwt
 
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
 from app.config import (
     JWT_SECRET_KEY,
     JWT_ALGORITHM
@@ -66,3 +69,29 @@ def decode_access_token(
     )
 
     return payload["sub"]
+
+security = HTTPBearer()
+
+
+def get_current_user_id(
+    credentials: HTTPAuthorizationCredentials = Depends(
+        security
+    )
+) -> str:
+
+    token = credentials.credentials
+
+    try:
+
+        user_id = decode_access_token(
+            token
+        )
+
+    except Exception:
+
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired token"
+        )
+
+    return user_id

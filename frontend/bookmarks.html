@@ -11,21 +11,398 @@
 
     <title>ProfileMatch - ブックマーク</title>
 
+
+    <style>
+
+        /* ==============================================
+           全体
+           ============================================== */
+
+        body {
+            font-family: sans-serif;
+            background: #f5f6f8;
+            margin: 0;
+            color: #333;
+        }
+
+
+        /* ==============================================
+           ヘッダー
+           ============================================== */
+
+        header {
+            background: white;
+            padding: 15px 30px;
+            border-bottom: 1px solid #ddd;
+        }
+
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+
+        /* ==============================================
+           メイン
+           ============================================== */
+
+        main {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+
+        /* ==============================================
+           ページタイトル
+           ============================================== */
+
+        .page-title {
+            margin-bottom: 20px;
+        }
+
+
+        .page-title h2 {
+            margin: 0 0 8px 0;
+        }
+
+
+        .page-title p {
+            margin: 0;
+            color: #777;
+            font-size: 14px;
+        }
+
+
+        /* ==============================================
+           ブックマーク一覧
+           ============================================== */
+
+        #results {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+
+        /* ==============================================
+           ユーザーカード
+           ============================================== */
+
+        .user-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.08);
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            transition:
+                transform 0.15s ease,
+                box-shadow 0.15s ease;
+        }
+
+
+        .user-card:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+
+        /* ==============================================
+           ユーザー情報
+           ============================================== */
+
+        .user-info {
+            flex: 1;
+        }
+
+
+        .user-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+
+        .user-detail {
+            color: #555;
+            line-height: 1.8;
+            font-size: 14px;
+        }
+
+
+        .user-hobbies {
+            margin-top: 5px;
+            color: #777;
+            font-size: 14px;
+        }
+
+
+        /* ==============================================
+           ボタン
+           ============================================== */
+
+        .button-area {
+            display: flex;
+            gap: 8px;
+            margin-left: 20px;
+        }
+
+
+        button {
+            padding: 9px 16px;
+
+            border: none;
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-size: 14px;
+        }
+
+
+        .detail-button {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+
+        .detail-button:hover {
+            background: #e5e5e5;
+        }
+
+
+        .remove-button {
+            background: #fff0f0;
+            color: #d33;
+        }
+
+
+        .remove-button:hover {
+            background: #ffe0e0;
+        }
+
+
+        /* ==============================================
+           読み込み中
+           ============================================== */
+
+        .loading {
+            background: white;
+
+            padding: 30px;
+
+            border-radius: 10px;
+
+            text-align: center;
+
+            color: #777;
+
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+
+        /* ==============================================
+           ブックマークなし
+           ============================================== */
+
+        .empty {
+            background: white;
+
+            padding: 50px 20px;
+
+            border-radius: 10px;
+
+            text-align: center;
+
+            color: #777;
+
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+
+        .empty-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+
+        /* ==============================================
+           戻るボタン
+           ============================================== */
+
+        .back-area {
+            margin-top: 25px;
+        }
+
+
+        .back-button {
+            padding: 10px 20px;
+
+            background: white;
+
+            border: 1px solid #ddd;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-size: 14px;
+        }
+
+
+        .back-button:hover {
+            background: #f0f0f0;
+        }
+
+        /* ★ヘッダー内の配置とスタイルの調整 */
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .mypage-link {
+            text-decoration: none;
+            color: #4f46e5;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 8px 14px;
+            border: 1px solid #4f46e5;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .mypage-link:hover {
+            background: #4f46e5;
+            color: white;
+        }
+
+
+        /* ==============================================
+           スマートフォン
+           ============================================== */
+
+        @media (max-width: 600px) {
+
+            header {
+                padding: 15px 20px;
+            }
+
+
+            main {
+                margin: 20px auto;
+                padding: 15px;
+            }
+
+
+            .user-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+
+            .button-area {
+                margin-left: 0;
+                margin-top: 15px;
+            }
+
+
+            .button-area button {
+                flex: 1;
+            }
+
+        }
+
+    </style>
+
 </head>
+
 
 <body>
 
-<h1>ProfileMatch</h1>
 
-<h2>ブックマーク</h2>
+<!-- ==============================================
+     ヘッダー
+     ============================================== -->
 
-<div id="results">
-    読み込み中...
-</div>
+<header>
+
+    <div class="header-content">
+        <h1>ProfileMatch</h1>
+        <a href="mypage.html" class="mypage-link">← マイページへ戻る</a>
+    </div>
+
+</header>
+
+
+<!-- ==============================================
+     メイン
+     ============================================== -->
+
+<main>
+
+
+    <div class="page-title">
+
+        <h2>
+            ブックマーク
+        </h2>
+
+        <p>
+            気になるユーザーを確認できます
+        </p>
+
+    </div>
+
+
+    <!-- ==========================================
+         ブックマーク一覧
+         ========================================== -->
+
+    <div id="results">
+
+        <div class="loading">
+            読み込み中...
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         戻る
+         ========================================== -->
+
+    <div class="back-area">
+
+        <button
+            class="back-button"
+            onclick="history.back()"
+        >
+            ← 戻る
+        </button>
+
+    </div>
+
+
+</main>
 
 
 <script src="./js/common.js"></script>
 <script src="./js/bookmarks.js"></script>
+
 
 </body>
 

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>メッセージ - Profile Match</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: #4a90e2;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            text-decoration: none;
+            color: #4a90e2;
+        }
+
+        .match-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .match-item:hover {
+            background: #f5f8fc;
+        }
+
+        .avatar {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .user-detail {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .empty {
+            text-align: center;
+            color: #777;
+            padding: 40px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>メッセージ</h1>
+    </div>
+
+    <div class="container">
+
+        <a href="mypage.html" class="back-button">
+            ← マイページへ戻る
+        </a>
+
+        <div id="matchList">
+            <div class="empty">
+                読み込み中...
+            </div>
+        </div>
+
+    </div>
+
+    <script src="./js/common.js"></script>
+    <script src="./js/messages.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Profile Match</title>
+
+
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+
+    body {
+
+        font-family:
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            Arial,
+            sans-serif;
+
+        margin: 0;
+
+        min-height: 100vh;
+
+        background:
+            linear-gradient(
+                135deg,
+                #eef4ff 0%,
+                #fdf2f8 50%,
+                #f5f6ff 100%
+            );
+
+        color: #333;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        overflow: hidden;
+    }
+
+
+    /* ==========================================
+       背景の装飾
+       ========================================== */
+
+    .background-shape {
+
+        position: fixed;
+
+        border-radius: 50%;
+
+        filter: blur(2px);
+
+        opacity: 0.45;
+
+        z-index: 0;
+    }
+
+
+    .shape1 {
+
+        width: 280px;
+        height: 280px;
+
+        background: #c7dcff;
+
+        top: -100px;
+        left: -80px;
+    }
+
+
+    .shape2 {
+
+        width: 250px;
+        height: 250px;
+
+        background: #ffd0e5;
+
+        bottom: -90px;
+        right: -70px;
+    }
+
+
+    /* ==========================================
+       メインカード
+       ========================================== */
+
+    .container {
+
+        position: relative;
+
+        z-index: 1;
+
+        width: 90%;
+
+        max-width: 500px;
+
+        background: rgba(255, 255, 255, 0.95);
+
+        padding: 45px 35px;
+
+        border-radius: 24px;
+
+        box-shadow:
+            0 15px 40px
+            rgba(50, 70, 120, 0.15);
+
+        text-align: center;
+    }
+
+
+    /* ==========================================
+       ロゴ
+       ========================================== */
+
+    .logo {
+
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        width: 72px;
+
+        height: 72px;
+
+        margin-bottom: 15px;
+
+        border-radius: 22px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #4a90e2,
+                #7b61ff
+            );
+
+        color: white;
+
+        font-size: 36px;
+
+        box-shadow:
+            0 8px 20px
+            rgba(74, 144, 226, 0.3);
+    }
+
+
+    /* ==========================================
+       タイトル
+       ========================================== */
+
+    h1 {
+
+        margin: 5px 0 10px;
+
+        font-size: 32px;
+
+        letter-spacing: 1px;
+
+        background:
+            linear-gradient(
+                90deg,
+                #4a90e2,
+                #7b61ff
+            );
+
+        -webkit-background-clip: text;
+
+        -webkit-text-fill-color: transparent;
+    }
+
+
+    .subtitle {
+
+        margin: 0 0 30px;
+
+        color: #777;
+
+        font-size: 15px;
+
+        line-height: 1.7;
+    }
+
+
+    /* ==========================================
+       キャッチコピー
+       ========================================== */
+
+    .catch-copy {
+
+        margin-bottom: 30px;
+
+        padding: 18px;
+
+        background: #f8f9ff;
+
+        border-radius: 15px;
+
+        color: #555;
+
+        font-size: 15px;
+
+        line-height: 1.7;
+    }
+
+
+    .catch-copy strong {
+
+        color: #4a90e2;
+
+        font-size: 17px;
+    }
+
+
+    /* ==========================================
+       ボタン
+       ========================================== */
+
+    .button-area {
+
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 12px;
+    }
+
+
+    .button {
+
+        display: block;
+
+        width: 100%;
+
+        padding: 14px;
+
+        border-radius: 10px;
+
+        text-decoration: none;
+
+        font-size: 16px;
+
+        font-weight: bold;
+
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+
+    .button:hover {
+
+        transform: translateY(-2px);
+
+    }
+
+
+    .register-button {
+
+        background:
+            linear-gradient(
+                135deg,
+                #4a90e2,
+                #667eea
+            );
+
+        color: white;
+
+        box-shadow:
+            0 6px 15px
+            rgba(74, 144, 226, 0.25);
+    }
+
+
+    .register-button:hover {
+
+        box-shadow:
+            0 9px 20px
+            rgba(74, 144, 226, 0.35);
+    }
+
+
+    .login-button {
+
+        background: white;
+
+        color: #4a90e2;
+
+        border: 1px solid #d7e2f5;
+    }
+
+
+    .login-button:hover {
+
+        background: #f7faff;
+    }
+
+
+    /* ==========================================
+       フッター
+       ========================================== */
+
+    .footer {
+
+        margin-top: 25px;
+
+        color: #999;
+
+        font-size: 12px;
+    }
+
+
+    /* ==========================================
+       ハート装飾
+       ========================================== */
+
+    .heart {
+
+        position: fixed;
+
+        color: rgba(74, 144, 226, 0.18);
+
+        font-size: 30px;
+
+        z-index: 0;
+
+        animation:
+            float 4s ease-in-out infinite;
+    }
+
+
+    .heart1 {
+
+        top: 15%;
+
+        right: 15%;
+
+    }
+
+
+    .heart2 {
+
+        bottom: 18%;
+
+        left: 12%;
+
+        font-size: 22px;
+
+        animation-delay: 1s;
+
+    }
+
+
+    @keyframes float {
+
+        0%,
+        100% {
+
+            transform:
+                translateY(0);
+
+        }
+
+        50% {
+
+            transform:
+                translateY(-12px);
+
+        }
+
+    }
+
+
+    /* ==========================================
+       スマートフォン
+       ========================================== */
+
+    @media (max-width: 600px) {
+
+        .container {
+
+            padding: 35px 25px;
+
+        }
+
+
+        h1 {
+
+            font-size: 28px;
+
+        }
+
+
+        .logo {
+
+            width: 64px;
+
+            height: 64px;
+
+            font-size: 30px;
+
+        }
+
+    }
+
+</style>
+
+</head>
+
+<body>
+
+<!-- ==============================================
+     背景装飾
+     ============================================== -->
+
+<div class="background-shape shape1"></div>
+
+<div class="background-shape shape2"></div>
+
+<div class="heart heart1">
+    ♥
+</div>
+
+<div class="heart heart2">
+    ♥
+</div>
+
+<!-- ==============================================
+     メイン
+     ============================================== -->
+
+<div class="container">
+
+<!-- ロゴ -->
+
+<div class="logo">
+    ♥
+</div>
+
+
+<!-- タイトル -->
+
+<h1>
+    Profile Match
+</h1>
+
+
+<p class="subtitle">
+    あなたにぴったりの人を見つけよう
+</p>
+
+
+<!-- キャッチコピー -->
+
+<div class="catch-copy">
+
+    <strong>
+        新しい出会いを、もっと身近に。
+    </strong>
+
+    <br>
+
+    プロフィールから気になる人を探して、
+    素敵な出会いを見つけよう。
+
+</div>
+
+
+<!-- ボタン -->
+
+<div class="button-area">
+
+
+    <a
+        href="register.html"
+        class="button register-button"
+    >
+        ✨ 新しくはじめる
+    </a>
+
+
+    <a
+        href="login.html"
+        class="button login-button"
+    >
+        ログイン
+    </a>
+
+
+</div>
+
+
+<!-- フッター -->
+
+<div class="footer">
+
+    Profile Match
+
+</div>
+
+</div>
+
+</body>
+
+</html>
+
