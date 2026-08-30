@@ -1,5 +1,7 @@
 # Profile Match
 
+![index](./img/index.png)
+
 ## 概要
 
 **Profile Match** は、ユーザー同士のプロフィールを条件検索し、気になるユーザーをブックマークすることでマッチングを行うWebアプリケーションである。
