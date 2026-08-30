@@ -1002,23 +1002,24 @@ profile-match/
 │   ├── config.py
 │   └── database.py
 │
-├── index.html
-├── login.html
-├── register.html
-├── mypage.html
-├── profile_edit.html
-├── profile.html
-├── search.html
-├── bookmarks.html
-├── messages.html
-├── chat.html
-│
-├── js/
-│   ├── common.js
-│   ├── search.js
-│   ├── bookmarks.js
-│   ├── messages.js
-│   └── chat.js
+├── frontend/
+│   ├── index.html
+│   ├── login.html
+│   ├── register.html
+│   ├── mypage.html
+│   ├── profile_edit.html
+│   ├── profile.html
+│   ├── search.html
+│   ├── bookmarks.html
+│   ├── messages.html
+│   ├── chat.html
+│   │
+│   ├── js/
+│       ├── common.js
+│       ├── search.js
+│       ├── bookmarks.js
+│       ├── messages.js
+│       └── chat.js
 │
 └── README.md
 ```
